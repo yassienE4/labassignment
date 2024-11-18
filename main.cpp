@@ -92,17 +92,29 @@ class allpatients
         {
             while(!allpatient.empty())
             {
-                std::this_thread::sleep_for(std::chrono::minutes(1)); //sleep for one min
-                //do task
+
                 patient temp;
                 temp = returnpatient(allpatient);
-                if(temp.type)
-                    gotourgent(temp);
+                if(temp.type == 1)
+                {
+                    urgent.push(temp);
+                    //needs a function call otherwise wil fill queues first
+                }
+                    
                 else
-                    gotonormal(temp);
+                {
+                    normal.push(temp);
+                    //same here
+                }
+                    
+
+
+                std::this_thread::sleep_for(std::chrono::minutes(1)); //sleep for one min
+                
+                
             }
         }
-        void print()
+        void print() // debugging
         {
             for(int i =0; i<10;i++)
             {
@@ -112,6 +124,13 @@ class allpatients
                 allpatient[i].time.display();
                 cout <<endl;
             }
+        }
+        void printqueue() //testing
+        {
+            dispatchpatients(allpatient);
+            patient temp = urgent.front();
+            cout << temp.gender;
+            cout << urgent.front().id;
         }
         
         
@@ -123,6 +142,9 @@ class allpatients
 int main()
 {
     allpatients test;
-    test.print();
+
+
+    //test.print();
+    test.printqueue();
     
 }
