@@ -1,3 +1,5 @@
+VIDEO LINK https://drive.google.com/file/d/1RXZl5nNfoxfELuiMSMqPobTUVZGaG4m7/view?usp=sharing
+
 This project implements a Patient Scheduling System using C++ STL and OOP principles to simulate a healthcare queue prioritization. 
 Patients are served based on urgency, ensuring efficient care in a simulated healthcare environment. 
 The system leverages data structures, exception handling, and collaborative development with GitHub to enhance teamwork and coding practices.
