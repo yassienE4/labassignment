@@ -16,6 +16,18 @@ struct timeformat
     {
         cout << setw(2) << setfill('0') << hour << ":" << setw(2) << setfill('0') << min;
     }
+    int toMinutes()
+    {
+        return( (hour *60) + min);
+    }
+    timeformat toformat(int x)
+    {
+        int hours = x / 60;
+        int mins = x % 60;
+        timeformat temp(hours,mins);
+        return temp;
+    }
+    
 };
 class allpatients
 {
@@ -55,7 +67,7 @@ class allpatients
             {
                 if(vec[i].type)
                 {
-                    cout << "Urgent" << endl;
+                    //cout << "Urgent" << endl; //debugging
                     patient returntemp = vec[i];
                     vec.erase(vec.begin() + i);
                     return returntemp;
@@ -63,7 +75,7 @@ class allpatients
             }
             for(int j = 0; j< vec.size(); j++)
             {
-                cout << "Normal" << endl;
+                //cout << "Normal" << endl;
                 patient returntemp = vec[j];
                 vec.erase(vec.begin() + j);
                 return returntemp;
@@ -93,6 +105,10 @@ class allpatients
             }
             
         }
+        timeformat add(timeformat x, int y)
+        {
+            return(x.toformat(x.toMinutes() + y));
+        }
         void dispatchpatients(vector<patient>)
         {
             while(!allpatient.empty())
@@ -103,6 +119,7 @@ class allpatients
                 if(temp.type == 1)
                 {
                     urgent.push(temp);
+                    cout <<"called";
                     //needs a function call otherwise wil fill queues first
                 }
                     
@@ -117,6 +134,7 @@ class allpatients
     
     void servePatients()
     {
+        timeformat currentTime; //simulation starts at 00:00
         int currentTimeStep = 0; // current minute in the 10 minute time step
         int waitingTime;
         int totalServedPatients = 0;
@@ -153,10 +171,9 @@ class allpatients
                     break; // both queues are empty no patients left, breaks second loop and won't enter first loop since they are both empty
                 }
                 
-                // Calculate waiting time PROBABLY WRONG
-             
-                waitingTime = currentTimeStep;      //this just returns current minute which is why its probably wrong
-                
+                // Calculate waiting time
+                currentTime = add(currentTime, currentTimeStep);
+                waitingTime = currentTime.toMinutes() - p.time.toMinutes();
                 // Update stats
                 totalServedPatients++; //increments total served patients (should probably put this after the pop since it increments every instance of the loop even if p does not change
                 totalWaitingTime= totalWaitingTime + waitingTime; //totals waiting time to find average later
@@ -169,6 +186,7 @@ class allpatients
                 if (nextTimestep == 1)
                 {
                     currentTimeStep += 10;
+                    //currentTime = currentTime.toMinutes() + currentTimeStep;
                 }
                 else
                 {
@@ -220,7 +238,6 @@ class allpatients
 int main()
 {
     allpatients test;
-
 
     //test.print();
     test.printqueue();
