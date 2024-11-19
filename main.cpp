@@ -6,6 +6,8 @@
 #include <stdexcept>
 using namespace std;
 
+
+
 struct timeformat
 {
     int hour;
@@ -44,6 +46,8 @@ class allpatients
             timeformat time;
             Type type;
         };
+        timeformat currenttime;
+        int currentTimeStep = 0;
         void gotourgent(patient p);
         void gotonormal(patient p);
         int index;
@@ -93,6 +97,7 @@ class allpatients
             
             cout<< "How many people are waiting to be served?" << endl;
             cin>>size;
+
             for(int i = 0; i< size; i++)
             {
                 temp.id = createrandid();
@@ -109,10 +114,17 @@ class allpatients
         {
             return(x.toformat(x.toMinutes() + y));
         }
-        bool min(temp)
+        /*
+        bool min(patient x)
         {
-            if(temp.time.tomin)
+            // if(x.time.toMinutes() > currentTime.toMinutes())
+            timeformat t = (add(currenttime, currentTimeStep));
+            if(x.time.toMinutes() < t.toMinutes())
+                return true;
+            else
+                return false;
         }
+        */
         void dispatchpatients(vector<patient>)
         {
             while(!allpatient.empty())
@@ -120,26 +132,24 @@ class allpatients
 
                 patient temp;
                 temp = returnpatient(allpatient);
-                if(temp.type == 1)&& min(temp)
-                {
-                    urgent.push(temp);
-                    //cout <<"called";
-                    //needs a function call otherwise wil fill queues first
-                }
-                    
-                else
-                {
-                    normal.push(temp);      //same here
-                }
-                    
+                
+                    if(temp.type == 1)
+                    {
+                        urgent.push(temp);
+                        //cout <<"called";
+                        //needs a function call otherwise wil fill queues first
+                    }
+                    else
+                    {
+                        normal.push(temp);      //same here
+                    }
+                  
                 
             }
         }
     
     void servePatients()
     {
-        timeformat currentTime; //simulation starts at 00:00
-        int currentTimeStep = 0; // current minute in the 10 minute time step
         int waitingTime;
         int totalServedPatients = 0;
         int totalWaitingTime = 0;
@@ -154,7 +164,7 @@ class allpatients
             while ((servedCount < N) && (!urgent.empty() || !normal.empty())) //makes sure to not serve more than N patients at a given minute and that both queues are not empty
             {
                 cout << "Current Time:";
-                currentTime.display();
+                currenttime.display();
                 cout << " Serving up to " << N << " patients in this time step." << endl;
                 patient p;
                 
@@ -178,8 +188,8 @@ class allpatients
                 
                 // Calculate waiting time
                 timeformat t;
-                t = add(currentTime, currentTimeStep);
-                waitingTime = t.toMinutes() - p.time.toMinutes();
+                t = add(currenttime, currentTimeStep);
+                waitingTime = abs(t.toMinutes() - p.time.toMinutes()); // (currenttime + currentitme step - arrival)
                 // Update stats
                 totalServedPatients++; //increments total served patients (should probably put this after the pop since it increments every instance of the loop even if p does not change
                 totalWaitingTime= totalWaitingTime + waitingTime; //totals waiting time to find average later
@@ -203,9 +213,9 @@ class allpatients
                 if (nextTimestep == 1)
                 {
                     currentTimeStep +=10;
-                    int temp = currentTime.toMinutes() + 10;
+                    int temp = currenttime.toMinutes() + 10;
                     timeformat tempx;
-                    currentTime = tempx.toformat(temp);
+                    currenttime = tempx.toformat(temp);
                    
                 }
                 else
@@ -213,7 +223,6 @@ class allpatients
                     cout << "Program ended"; //can probably find a better behavior for this
                     break;
                 }
-                
             }
             
         }
