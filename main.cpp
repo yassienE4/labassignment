@@ -148,7 +148,7 @@ class allpatients
     }
     
     void servePatients()
-    {
+    { //current time variable is declared in the begining as 00:00
         int waitingTime;
         int totalServedPatients = 0;
         int totalWaitingTime = 0;
@@ -201,7 +201,17 @@ class allpatients
             {
                 cout << "Average Waiting Time: " << (totalWaitingTime / totalServedPatients) << " minutes\n";
                 cout << "Remaining Urgent Patients: " << urgent.size() << "\n";
+                while (!urgent.empty())
+                {
+                    cout << urgent.front().id << " ";
+                    urgent.pop();
+                }
                 cout << "Remaining Normal Patients: " << normal.size() << "\n";
+                while (!normal.empty())
+                {
+                    cout << normal.front().id << " ";
+                    normal.pop();
+                }
             }
 
             cout << "Press 1 to move on to the next 10-minute increment or press anything else to end: ";
