@@ -109,6 +109,10 @@ class allpatients
         {
             return(x.toformat(x.toMinutes() + y));
         }
+        bool min(temp)
+        {
+            if(temp.time.tomin)
+        }
         void dispatchpatients(vector<patient>)
         {
             while(!allpatient.empty())
@@ -116,7 +120,7 @@ class allpatients
 
                 patient temp;
                 temp = returnpatient(allpatient);
-                if(temp.type == 1)
+                if(temp.type == 1)&& min(temp)
                 {
                     urgent.push(temp);
                     //cout <<"called";
@@ -146,11 +150,12 @@ class allpatients
             int N = rand() % 6 + 5;// Randomly generate N between 5 and 10(patients to be served this minute
             int servedCount = 0; // Counter for patients served in this minute
             
-            cout << "Time: " << currentTimeStep<< " minutes" << endl;
-            cout << "Serving up to " << N << " patients in this time step." << endl;
             
             while ((servedCount < N) && (!urgent.empty() || !normal.empty())) //makes sure to not serve more than N patients at a given minute and that both queues are not empty
             {
+                cout << "Current Time:";
+                currentTime.display();
+                cout << " Serving up to " << N << " patients in this time step." << endl;
                 patient p;
                 
                 // Serving urgent queue first
@@ -172,21 +177,36 @@ class allpatients
                 }
                 
                 // Calculate waiting time
-                currentTime = add(currentTime, currentTimeStep);
-                waitingTime = currentTime.toMinutes() - p.time.toMinutes();
+                timeformat t;
+                t = add(currentTime, currentTimeStep);
+                waitingTime = t.toMinutes() - p.time.toMinutes();
                 // Update stats
                 totalServedPatients++; //increments total served patients (should probably put this after the pop since it increments every instance of the loop even if p does not change
                 totalWaitingTime= totalWaitingTime + waitingTime; //totals waiting time to find average later
                                 
                 servedCount++; //increments served count so if it is more than N it exits the loop after this iteration
                 
-                cout << "press 1 to move on to next 10 minute increment or press anything else to end " << endl; //Timing in the system is advacnced with each enter not the actual computer time
                 
+                
+                cout << "Simulation Summary: "<< endl;
+                               cout << "Total Served Patients: " << totalServedPatients << endl;
+                               if (totalServedPatients > 0)
+                               {
+                                   cout << "Average Waiting Time: " << (totalWaitingTime / totalServedPatients) << " minutes" << endl;
+                                   cout << "Remaining Urgent Patients: " << urgent.size() << endl;
+                                   cout << "Remaining Normal Patients: " << normal.size() << endl;
+                               
+                               }
+               
+                cout << "press 1 to move on to next 10 minute increment or press anything else to end " << endl; //Timing in the system is advacnced with each enter not the actual computer time
                 cin >> nextTimestep;
                 if (nextTimestep == 1)
                 {
-                    currentTimeStep += 10;
-                    //currentTime = currentTime.toMinutes() + currentTimeStep;
+                    currentTimeStep +=10;
+                    int temp = currentTime.toMinutes() + 10;
+                    timeformat tempx;
+                    currentTime = tempx.toformat(temp);
+                   
                 }
                 else
                 {
@@ -197,15 +217,7 @@ class allpatients
             }
             
         }
-            cout << "Simulation Summary: "<< endl;
-                cout << "Total Served Patients: " << totalServedPatients << endl;
-                if (totalServedPatients > 0)
-                {
-                    cout << "Average Waiting Time: " << (totalWaitingTime / totalServedPatients) << " minutes" << endl;
-                    cout << "Remaining Urgent Patients: " << urgent.size() << endl;
-                    cout << "Remaining Normal Patients: " << normal.size() << endl;
-                
-                }
+           
         // Print remaining patients in queues, only if loop breaks early
            
     }
