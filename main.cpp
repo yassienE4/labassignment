@@ -14,7 +14,7 @@ struct timeformat
     int min;
     timeformat() : hour(0), min(0) {};
     timeformat(int h, int m) : hour(h), min(m) {};
-    void display()
+    void display() const
     {
         cout << setw(2) << setfill('0') << hour << ":" << setw(2) << setfill('0') << min;
     }
@@ -48,8 +48,6 @@ class allpatients
         };
     timeformat currenttime;
         int currentTimeStep = 0;
-        void gotourgent(patient p);
-        void gotonormal(patient p);
         int index;
         vector<patient> allpatient;
         queue<patient> urgent;
@@ -58,15 +56,20 @@ class allpatients
         {
             int temp1 = rand() % 9 + 1;
             string result = to_string(temp1);
-            for (int i = 0; i < 13; ++i)
-            {
-                int digit = rand() % 10;
-                result += to_string(digit);
-            }
-            if (result.length() != 14) // Shouldn't happen with the current logic
+            try {
+                for (int i = 0; i < 13; ++i)
                 {
-                    throw std::out_of_range("Generated National ID is out of range: " + result);
+                    int digit = rand() % 10;
+                    result += to_string(digit);
                 }
+                if (result.length() != 14) // Shouldn't happen with the current logic
+                    {
+                        throw out_of_range("National ID is out of range: " + result);
+                    }
+            } catch (const exception& e) {
+                cout << e.what() <<endl;
+            }
+            
             return result;
         }
         patient returnpatient(vector<patient> & vec)
@@ -189,8 +192,6 @@ class allpatients
                 totalWaitingTime += waitingTime;
 
                 servedCount++;
-                cout << "Patient served, servedCount: " << servedCount << ", Total Served Patients: " << totalServedPatients << endl;
-                
                 cout << "Patient ID: " << p.id << " | Waiting Time: " << waitingTime << " minutes.\n";
             }
 
@@ -223,7 +224,7 @@ class allpatients
             for (const auto& p : allpatient)
             {
                 cout << "Patient ID: " << p.id << " | Arrival Time: ";
-//                p.time.display();
+                p.time.display();
                 cout << "\n";
             }
         }
