@@ -63,6 +63,10 @@ class allpatients
                 int digit = rand() % 10;
                 result += to_string(digit);
             }
+            if (result.length() != 14) // Shouldn't happen with the current logic
+                {
+                    throw std::out_of_range("Generated National ID is out of range: " + result);
+                }
             return result;
         }
         patient returnpatient(vector<patient> & vec)
@@ -114,17 +118,7 @@ class allpatients
         {
             return(x.toformat(x.toMinutes() + y));
         }
-        /*
-        bool min(patient x)
-        {
-            // if(x.time.toMinutes() > currentTime.toMinutes())
-            timeformat t = (add(currenttime, currentTimeStep));
-            if(x.time.toMinutes() < t.toMinutes())
-                return true;
-            else
-                return false;
-        }
-        */
+        
     void dispatchpatients()
     {
         vector<patient>::iterator it = allpatient.begin();
@@ -195,7 +189,8 @@ class allpatients
                 totalWaitingTime += waitingTime;
 
                 servedCount++;
-
+                cout << "Patient served, servedCount: " << servedCount << ", Total Served Patients: " << totalServedPatients << endl;
+                
                 cout << "Patient ID: " << p.id << " | Waiting Time: " << waitingTime << " minutes.\n";
             }
 
@@ -233,41 +228,12 @@ class allpatients
             }
         }
     }
-        // Print remaining patients in queues, only if loop breaks early
            
 };
     
-//
-//        void print() // debugging
-//        {
-//            for(int i =0; i<10;i++)
-//            {
-//                cout << allpatients[i].gender << endl;
-//                cout << allpatient[i].id << endl;
-//                cout << allpatient[i].type << endl;
-//                allpatient[i].time.display();
-//                cout <<endl;
-
-//        void calldispatch()
-//        {
-//            dispatchpatients(allpatient);
-//        }
-//        void printqueue() //testing
-//        {
-//            dispatchpatients(allpatient);
-//            patient temp = urgent.front();
-//            cout << temp.gender;
-//            cout << urgent.front().id;
-//        }
-//
-//
-
-
-
 int main()
 {
     allpatients test; // generates patient
-//    test.calldispatch();
     test.servePatients();
     
 }
