@@ -46,7 +46,7 @@ class allpatients
             timeformat time;
             Type type;
         };
-        timeformat currenttime;
+    timeformat currenttime;
         int currentTimeStep = 0;
         void gotourgent(patient p);
         void gotonormal(patient p);
@@ -125,28 +125,30 @@ class allpatients
                 return false;
         }
         */
-        void dispatchpatients(vector<patient>)
-        {
-            while(!allpatient.empty())
-            {
+    void dispatchpatients()
+    {
+        vector<patient>::iterator it = allpatient.begin();
 
-                patient temp;
-                temp = returnpatient(allpatient);
-                
-                    if(temp.type == 1)
-                    {
-                        urgent.push(temp);
-                        //cout <<"called";
-                        //needs a function call otherwise wil fill queues first
-                    }
-                    else
-                    {
-                        normal.push(temp);      //same here
-                    }
-                  
-                
+        while (it != allpatient.end()) // Traverse through all patients
+        {
+            if (it->time.toMinutes() <= currenttime.toMinutes()) // Check if patient can be dispatched
+            {
+                if (it->type == Urgent)
+                {
+                    urgent.push(*it); // Add to urgent queue
+                }
+                else
+                {
+                    normal.push(*it); // Add to normal queue
+                }
+                it = allpatient.erase(it); // Remove dispatched patient from allpatient
+            }
+            else
+            {
+                ++it; // Move to the next patient
             }
         }
+    }
     
     void servePatients()
     {
@@ -154,117 +156,118 @@ class allpatients
         int totalServedPatients = 0;
         int totalWaitingTime = 0;
         int nextTimestep;
-        
-        while (!urgent.empty() || !normal.empty())
+
+        while (!urgent.empty() || !normal.empty() || !allpatient.empty()) // Check all queues and pending patients
         {
-            int N = rand() % 6 + 5;// Randomly generate N between 5 and 10(patients to be served this minute
-            int servedCount = 0; // Counter for patients served in this minute
-            
-            
-            while ((servedCount < N) && (!urgent.empty() || !normal.empty())) //makes sure to not serve more than N patients at a given minute and that both queues are not empty
+            dispatchpatients(); // Add eligible patients to queues before serving
+
+            int N = rand() % 6 + 5; // Randomly generate N between 5 and 10
+            int servedCount = 0;
+
+            cout << "\nCurrent Time: ";
+            currenttime.display();
+            cout << " | Serving up to " << N << " patients in this time step.\n";
+
+            while (servedCount < N && (!urgent.empty() || !normal.empty()))
             {
-                cout << "Current Time:";
-                currenttime.display();
-                cout << " Serving up to " << N << " patients in this time step." << endl;
                 patient p;
-                
-                // Serving urgent queue first
+
+                // Serve urgent queue first
                 if (!urgent.empty())
                 {
-                    p = urgent.front(); //p is now patient at front of queue
-                       urgent.pop(); //only pops if remaining time is 0, otherwise keeps patient at front of Queue in order to decrement remaining time each minute
+                    p = urgent.front();
+                    urgent.pop();
                 }
-                // Serve from the normal queue if urgent queue is empty
+                // Serve normal queue if urgent queue is empty
                 else if (!normal.empty())
                 {
-                    p = normal.front(); //p is now patient at front of queue
-                        normal.pop(); //only pops if remaining time is 0, otherwise keeps patient at front of Queue in order to decrement remaining time each minute
-                  
+                    p = normal.front();
+                    normal.pop();
                 }
                 else
                 {
-                    break; // both queues are empty no patients left, breaks second loop and won't enter first loop since they are both empty
+                    break; // Both queues are empty
                 }
-                
+
                 // Calculate waiting time
-                timeformat t;
-                t = add(currenttime, currentTimeStep);
-                waitingTime = abs(t.toMinutes() - p.time.toMinutes()); // (currenttime + currentitme step - arrival)
-                // Update stats
-                totalServedPatients++; //increments total served patients (should probably put this after the pop since it increments every instance of the loop even if p does not change
-                totalWaitingTime= totalWaitingTime + waitingTime; //totals waiting time to find average later
-                                
-                servedCount++; //increments served count so if it is more than N it exits the loop after this iteration
-                
-                
-                
-                cout << "Simulation Summary: "<< endl;
-                               cout << "Total Served Patients: " << totalServedPatients << endl;
-                               if (totalServedPatients > 0)
-                               {
-                                   cout << "Average Waiting Time: " << (totalWaitingTime / totalServedPatients) << " minutes" << endl;
-                                   cout << "Remaining Urgent Patients: " << urgent.size() << endl;
-                                   cout << "Remaining Normal Patients: " << normal.size() << endl;
-                               
-                               }
-               
-                cout << "press 1 to move on to next 10 minute increment or press anything else to end " << endl; //Timing in the system is advacnced with each enter not the actual computer time
-                cin >> nextTimestep;
-                if (nextTimestep == 1)
-                {
-                    currentTimeStep +=10;
-                    int temp = currenttime.toMinutes() + 10;
-                    timeformat tempx;
-                    currenttime = tempx.toformat(temp);
-                   
-                }
-                else
-                {
-                    cout << "Program ended"; //can probably find a better behavior for this
-                    break;
-                }
+                waitingTime = (currenttime.toMinutes() + currentTimeStep) - p.time.toMinutes();
+                totalServedPatients++;
+                totalWaitingTime += waitingTime;
+
+                servedCount++;
+
+                cout << "Patient ID: " << p.id << " | Waiting Time: " << waitingTime << " minutes.\n";
             }
-            
+
+            cout << "Simulation Summary:\n";
+            cout << "Total Served Patients: " << totalServedPatients << "\n";
+            if (totalServedPatients > 0)
+            {
+                cout << "Average Waiting Time: " << (totalWaitingTime / totalServedPatients) << " minutes\n";
+                cout << "Remaining Urgent Patients: " << urgent.size() << "\n";
+                cout << "Remaining Normal Patients: " << normal.size() << "\n";
+            }
+
+            cout << "Press 1 to move on to the next 10-minute increment or press anything else to end: ";
+            cin >> nextTimestep;
+
+            if (nextTimestep == 1)
+            {
+                currenttime = add(currenttime, 10); // Increment current time by 10 minutes
+            }
+            else
+            {
+                cout << "Program ended.\n";
+                break;
+            }
         }
-           
+
+        if (!allpatient.empty())
+        {
+            cout << "Remaining patients not yet eligible for dispatch:\n";
+            for (const auto& p : allpatient)
+            {
+                cout << "Patient ID: " << p.id << " | Arrival Time: ";
+//                p.time.display();
+                cout << "\n";
+            }
+        }
+    }
         // Print remaining patients in queues, only if loop breaks early
            
-    }
-    
-    
-        void print() // debugging
-        {
-            for(int i =0; i<10;i++)
-            {
-                cout << allpatient[i].gender << endl;
-                cout << allpatient[i].id << endl;
-                cout << allpatient[i].type << endl;
-                allpatient[i].time.display();
-                cout <<endl;
-            }
-        }
-        void calldispatch()
-        {
-            dispatchpatients(allpatient);
-        }
-        void printqueue() //testing
-        {
-            dispatchpatients(allpatient);
-            patient temp = urgent.front();
-            cout << temp.gender;
-            cout << urgent.front().id;
-        }
-        
-        
-
-
-    
 };
+    
+//
+//        void print() // debugging
+//        {
+//            for(int i =0; i<10;i++)
+//            {
+//                cout << allpatients[i].gender << endl;
+//                cout << allpatient[i].id << endl;
+//                cout << allpatient[i].type << endl;
+//                allpatient[i].time.display();
+//                cout <<endl;
+
+//        void calldispatch()
+//        {
+//            dispatchpatients(allpatient);
+//        }
+//        void printqueue() //testing
+//        {
+//            dispatchpatients(allpatient);
+//            patient temp = urgent.front();
+//            cout << temp.gender;
+//            cout << urgent.front().id;
+//        }
+//
+//
+
+
 
 int main()
 {
     allpatients test; // generates patient
-    test.calldispatch();
+//    test.calldispatch();
     test.servePatients();
     
 }
