@@ -119,7 +119,7 @@ class allpatients
                 if(temp.type == 1)
                 {
                     urgent.push(temp);
-                    cout <<"called";
+                    //cout <<"called";
                     //needs a function call otherwise wil fill queues first
                 }
                     
@@ -202,11 +202,12 @@ class allpatients
                 if (totalServedPatients > 0)
                 {
                     cout << "Average Waiting Time: " << (totalWaitingTime / totalServedPatients) << " minutes" << endl;
+                    cout << "Remaining Urgent Patients: " << urgent.size() << endl;
+                    cout << "Remaining Normal Patients: " << normal.size() << endl;
                 
                 }
         // Print remaining patients in queues, only if loop breaks early
-           cout << "Remaining Urgent Patients: " << urgent.size() << endl;
-           cout << "Remaining Normal Patients: " << normal.size() << endl;
+           
     }
     
     
@@ -220,6 +221,10 @@ class allpatients
                 allpatient[i].time.display();
                 cout <<endl;
             }
+        }
+        void calldispatch()
+        {
+            dispatchpatients(allpatient);
         }
         void printqueue() //testing
         {
@@ -237,9 +242,8 @@ class allpatients
 
 int main()
 {
-    allpatients test;
-
-    //test.print();
-    test.printqueue();
+    allpatients test; // generates patient
+    test.calldispatch();
+    test.servePatients();
     
 }
