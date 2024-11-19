@@ -19,8 +19,11 @@ Final statistics are displayed at the end of the simulation.
 Deliverables
 
 Code: Clean, modular code following best practices.
+
 README: Comprehensive documentation.
+
 Workload Table: Detailed task distribution between contributors.
+
 UML Diagrams: Attached to the repository.
 
 Setup Instructions
