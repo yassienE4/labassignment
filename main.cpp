@@ -3,8 +3,7 @@
 #include <vector>
 #include <time.h>
 #include <iomanip>
-#include <chrono>
-#include <thread>
+#include <stdexcept>
 using namespace std;
 
 struct timeformat
@@ -16,10 +15,6 @@ struct timeformat
     void display()
     {
         cout << setw(2) << setfill('0') << hour << ":" << setw(2) << setfill('0') << min;
-    }
-    int toMinutes() const
-    {
-            return (hour * 60) + min; // Convert hours to minutes and add minutes
     }
 };
 class allpatients
@@ -36,7 +31,6 @@ class allpatients
             char gender;
             timeformat time;
             Type type;
-            int remainingServeTime = rand() % 10 + 1; //Time it takes to serve patient (cannot be more than 10)
         };
         void gotourgent(patient p);
         void gotonormal(patient p);
@@ -48,7 +42,7 @@ class allpatients
         {
             int temp1 = rand() % 9 + 1;
             string result = to_string(temp1);
-            for (int i = 0; i < 13; ++i) 
+            for (int i = 0; i < 13; ++i)
             {
                 int digit = rand() % 10;
                 result += to_string(digit);
@@ -67,15 +61,17 @@ class allpatients
                     return returntemp;
                 }
             }
-            for(int i = 0; i< vec.size(); i++)
+            for(int j = 0; j< vec.size(); j++)
             {
                 cout << "Normal" << endl;
-                patient returntemp = vec[i];
-                vec.erase(vec.begin() + i);
+                patient returntemp = vec[j];
+                vec.erase(vec.begin() + j);
                 return returntemp;
             }
+            patient x; //
+            return x;
         }
-    public: 
+    public:
         allpatients()
         {
             patient temp;
@@ -115,48 +111,24 @@ class allpatients
                     normal.push(temp);      //same here
                 }
                     
-
-
-//                std::this_thread::sleep_for(std::chrono::minutes(1)); //sleep for one min
                 
             }
         }
     
-    bool processRemainingServeTime(patient& p, int currentMin) //function used to decide if patient should be popped from queue or is still being served
-    {
-        // Decrease the remaining serve time
-        if (p.remainingServeTime > 0)
-        {
-            p.remainingServeTime--;
-            cout << "Serving patient - ID: " << p.id << ", Type: " << (p.type == 1 ? "Urgent" : "Normal") << ", Remaining Serve Time: " << p.remainingServeTime << " minutes." << endl;
-            return false;
-        }
-        
-        // If the patient is done being served
-        if (p.remainingServeTime == 0)
-        {
-            cout << "Finished serving patient - ID: " << p.id << ", Type: " << (p.type == 1 ? "Urgent" : "Normal") << ", Arrival Time: ";
-            p.arrivalTime.display();
-            cout << ", Waiting Time: " << (currentMin - p.arrivalTime.toMinutes()) << " minutes." << endl;
-            return true;
-        }
-        return false;
-    }
-    
     void servePatients()
     {
-        int currentMinute = 0; // current minute in the 10 minute time step
+        int currentTimeStep = 0; // current minute in the 10 minute time step
         int waitingTime;
         int totalServedPatients = 0;
         int totalWaitingTime = 0;
-        int nextminute;
+        int nextTimestep;
         
         while (!urgent.empty() || !normal.empty())
         {
             int N = rand() % 6 + 5;// Randomly generate N between 5 and 10(patients to be served this minute
             int servedCount = 0; // Counter for patients served in this minute
             
-            cout << "Time: " << currentMinute << " minutes" << endl;
+            cout << "Time: " << currentTimeStep<< " minutes" << endl;
             cout << "Serving up to " << N << " patients in this time step." << endl;
             
             while ((servedCount < N) && (!urgent.empty() || !normal.empty())) //makes sure to not serve more than N patients at a given minute and that both queues are not empty
@@ -167,19 +139,14 @@ class allpatients
                 if (!urgent.empty())
                 {
                     p = urgent.front(); //p is now patient at front of queue
-                   if(processRemainingServeTime(p, currentMinute))
-                   {
                        urgent.pop(); //only pops if remaining time is 0, otherwise keeps patient at front of Queue in order to decrement remaining time each minute
-                   } //after pop it moves on to next patient in queue
                 }
                 // Serve from the normal queue if urgent queue is empty
                 else if (!normal.empty())
                 {
                     p = normal.front(); //p is now patient at front of queue
-                    if(processRemainingServeTime(p, currentMinute))
-                    {
                         normal.pop(); //only pops if remaining time is 0, otherwise keeps patient at front of Queue in order to decrement remaining time each minute
-                    } //after pop it moves on to next patient in queue
+                  
                 }
                 else
                 {
@@ -187,8 +154,8 @@ class allpatients
                 }
                 
                 // Calculate waiting time PROBABLY WRONG
-                int serveTime = p.arrivalTime.toMinutes() + currentMinute; //this just returns current minute which is why its probably wrong
-                waitingTime = serveTime - p.arrivalTime.toMinutes();      //this just returns current minute which is why its probably wrong
+             
+                waitingTime = currentTimeStep;      //this just returns current minute which is why its probably wrong
                 
                 // Update stats
                 totalServedPatients++; //increments total served patients (should probably put this after the pop since it increments every instance of the loop even if p does not change
@@ -196,15 +163,16 @@ class allpatients
                                 
                 servedCount++; //increments served count so if it is more than N it exits the loop after this iteration
                 
-                cout << "press 1 to move on to next minute or press anything else to end " << endl; //Timing in the system is advacnced with each enter not the actual computer time
-                cin >> nextminute;
-                if (nextminute == 1)
+                cout << "press 1 to move on to next 10 minute increment or press anything else to end " << endl; //Timing in the system is advacnced with each enter not the actual computer time
+                
+                cin >> nextTimestep;
+                if (nextTimestep == 1)
                 {
-                    currentMinute++;
+                    currentTimeStep += 10;
                 }
                 else
                 {
-                    cout << "end"<< endl; //can probably find a better behavior for this
+                    cout << "Program ended"; //can probably find a better behavior for this
                     break;
                 }
                 
@@ -218,7 +186,7 @@ class allpatients
                     cout << "Average Waiting Time: " << (totalWaitingTime / totalServedPatients) << " minutes" << endl;
                 
                 }
-        // Print remaining patients in queues, only if loop breaks early 
+        // Print remaining patients in queues, only if loop breaks early
            cout << "Remaining Urgent Patients: " << urgent.size() << endl;
            cout << "Remaining Normal Patients: " << normal.size() << endl;
     }
